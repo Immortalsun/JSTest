@@ -1,12 +1,16 @@
 var requestAnimationFrame = window.requestAnimationFrame ||
-                            window.mozRequestAnimationFrame ||
-                            window.webkitRequestAnimationFrame ||
-                            window.msRequestAnimationFrame;
+    window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.msRequestAnimationFrame;
 
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-var circleRadius = 15;
+var angle = 0;
+var xCoord = 0;
+var yCoord = 0;
+var speed = 5;
+var shot;
 
 function clickFunction() {
     "use strict";
@@ -24,17 +28,64 @@ function clearCanvas() {
 
 function clickCanvas(e) {
     var canvasRect = canvas.getBoundingClientRect();
-    var xCoord = Math.floor((e.clientX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width);
-    var yCoord = Math.floor((e.clientY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height);
+    xCoord = Math.floor((e.clientX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width);
+    yCoord = Math.floor((e.clientY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height);
     document.getElementById("coordText").innerHTML = "Coordinates: " + "(" + xCoord + "," + yCoord + ")";
-    drawCircle(xCoord, yCoord, ctx);
+    shootCircle();
 }
 
-function drawCircle(xcoord, yCoord, canvasContext) {
-    clearCanvas();
-    canvasContext.beginPath();
-    canvasContext.arc(xcoord, yCoord, circleRadius, 0, (2.0 * Math.PI));
-    canvasContext.closePath();
-    canvasContext.fillStyle = "green";
-    canvasContext.fill();
+function Circle(x,y,radius)
+{
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+}
+
+function update()
+{
+    if(shot != undefined && shot.y > 0)
+    {
+        shot.y -= speed;
+    }
+    else
+    {
+        clearCanvas();
+        shot = undefined;
+    }
+}
+
+function draw()
+{
+    drawCircle();
+}
+
+function animate()
+{
+    if(shot != undefined)
+    {
+        update();
+        draw();
+        requestAnimationFrame(animate);
+    }
+
+}
+
+function shootCircle()
+{
+    shot = new Circle(xCoord,yCoord,15);
+    drawCircle();
+
+   requestAnimationFrame(animate);
+}
+
+function drawCircle() {
+    if(shot != undefined)
+    {
+        clearCanvas();
+        ctx.beginPath();
+        ctx.arc(shot.x, shot.y, shot.radius, 0, (2.0 * Math.PI), false);
+        ctx.closePath();
+        ctx.fillStyle = "green";
+        ctx.fill();
+    }
 }
